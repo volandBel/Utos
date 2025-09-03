@@ -1,0 +1,7 @@
+﻿{
+  "actions": [
+    { "type": "open", "url": "https://example.com" },
+    { "type": "expectVisible", "selector": "h1", "timeout": 2000 },
+    { "type": "screenshot", "name": "home" }
+  ]
+}
