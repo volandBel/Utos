@@ -1,0 +1,12 @@
+{
+  "name": "@utos/dsl",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": { "utos": "bin/utos.mjs" },
+  "dependencies": { "zod": "^3.23.8" },
+  "exports": {
+    ".": { "import": "./src/schema.mjs" },
+    "./schema": { "import": "./src/schema.mjs" }
+  }
+}

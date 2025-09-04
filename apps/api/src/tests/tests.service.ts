@@ -3,7 +3,6 @@ import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq, desc } from 'drizzle-orm';
 import * as schema from '../db/schema';
 import { tests } from '../db/schema';
-import { DslV1 } from '../dsl/schema';
 
 @Injectable()
 export class TestsService {
@@ -11,7 +10,8 @@ export class TestsService {
 
   async create(input: { projectId: string; name: string; dsl: unknown }) {
     // Zod-валидация DSL
-    const parsed = DslV1.safeParse(input.dsl);
+    const mod: any = await import('@utos/dsl'); // берём схему из пакета
+    const parsed = mod.DslV1.safeParse(input.dsl);
     if (!parsed.success) {
       throw new BadRequestException({
         message: 'DSL validation failed',

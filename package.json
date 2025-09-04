@@ -8,7 +8,8 @@
     "packages/*"
   ],
   "scripts": {
-    "dev:api": "pnpm -F @utos/api dev"
+    "dev:api": "pnpm -F @utos/api dev",
+    "utos": "pnpm -w exec node packages/dsl/bin/utos.mjs"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.10"
