@@ -1,8 +1,14 @@
 import { z } from "zod";
 
+// Разрешаем только http/https
+const httpUrl = z
+  .string()
+  .url()
+  .refine((u) => /^https?:\/\//i.test(u), { message: "URL must start with http:// or https://" });
+
 const Open = z.object({
   type: z.literal("open"),
-  url: z.string().url(),
+  url: httpUrl,
 });
 
 const Click = z.object({
