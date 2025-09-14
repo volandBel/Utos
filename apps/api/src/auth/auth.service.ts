@@ -24,17 +24,20 @@ export class AuthService {
     return { user: { id: user.id, email: user.email, created_at: user.createdAt }, ...(await this.issueTokens(user.id, user.email)) };
   }
 
+  async refresh(refreshToken: string) {
+    const refreshJwt = new JwtService({ secret: process.env.JWT_REFRESH_SECRET! });
+    const payload = await refreshJwt.verifyAsync<{ sub: string; email: string }>(refreshToken);
+    return this.issueTokens(payload.sub, payload.email);
+  }
+
   private async issueTokens(userId: string, email: string) {
     const payload = { sub: userId, email };
     const access_token = await this.jwt.signAsync(payload, {
       secret: process.env.JWT_ACCESS_SECRET!,
       expiresIn: ACCESS_EXPIRES,
     });
-
-    // для refresh используем отдельный секрет
     const refreshJwt = new JwtService({ secret: process.env.JWT_REFRESH_SECRET! });
     const refresh_token = await refreshJwt.signAsync(payload, { expiresIn: REFRESH_EXPIRES });
-
     return { access_token, refresh_token, token_type: 'Bearer', expires_in: ACCESS_EXPIRES };
   }
 }

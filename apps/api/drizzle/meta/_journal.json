@@ -15,6 +15,20 @@
       "when": 1757541029502,
       "tag": "0001_cuddly_stature",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1757787821869,
+      "tag": "0002_noisy_marrow",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1757883960160,
+      "tag": "0003_pink_the_renegades",
+      "breakpoints": true
     }
   ]
 }

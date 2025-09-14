@@ -1,25 +1,31 @@
-import { Inject, Injectable, BadRequestException } from '@nestjs/common';
+import { Inject, Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq, desc } from 'drizzle-orm';
 import * as schema from '../db/schema';
 import { tests } from '../db/schema';
 import { formatZodIssues } from '../common/validation';
+import { ProjectsService } from '../projects/projects.service';  // ← добавили
 
 @Injectable()
 export class TestsService {
-  constructor(@Inject('DB') private readonly db: NodePgDatabase<typeof schema>) {}
+  constructor(
+    @Inject('DB') private readonly db: NodePgDatabase<typeof schema>,
+    private readonly projects: ProjectsService, // ← добавили
+  ) {}
 
-  async create(input: { projectId: string; name: string; dsl: unknown }) {
-    const mod: any = await import('@utos/dsl');           // используем единую схему
+  async create(ownerId: string, input: { projectId: string; name: string; dsl: unknown }) {
+    // 1) Проверяем владение проектом
+    const owned = await this.projects.getOwnedById(input.projectId, ownerId);
+    if (!owned) throw new NotFoundException({ error: 'PROJECT_NOT_FOUND' });
+
+    // 2) Валидируем DSL (единая схема из @utos/dsl)
+    const mod: any = await import('@utos/dsl');
     const parsed = mod.DslV1.safeParse(input.dsl);
-
     if (!parsed.success) {
-      throw new BadRequestException({
-        error: 'DSL_VALIDATION_FAILED',
-        issues: formatZodIssues(parsed.error),
-      });
+      throw new BadRequestException({ error: 'DSL_VALIDATION_FAILED', issues: formatZodIssues(parsed.error) });
     }
 
+    // 3) Сохраняем тест
     const [row] = await this.db
       .insert(tests)
       .values({ projectId: input.projectId, name: input.name, dslJson: parsed.data })
@@ -28,11 +34,12 @@ export class TestsService {
     return row;
   }
 
-  async listByProject(projectId: string) {
-    return this.db
-      .select()
-      .from(tests)
-      .where(eq(tests.projectId, projectId))
-      .orderBy(desc(tests.createdAt));
+  async listByProject(ownerId: string, projectId: string) {
+    // Проверяем владение
+    const owned = await this.projects.getOwnedById(projectId, ownerId);
+    if (!owned) throw new NotFoundException({ error: 'PROJECT_NOT_FOUND' });
+
+    // Выдаём тесты по проекту
+    return this.db.select().from(tests).where(eq(tests.projectId, projectId)).orderBy(desc(tests.createdAt));
   }
 }

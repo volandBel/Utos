@@ -102,6 +102,9 @@ importers:
       '@types/pg':
         specifier: ^8.15.5
         version: 8.15.5
+      '@utos/runner-contract':
+        specifier: workspace:^
+        version: link:../../packages/runner-contract
       drizzle-kit:
         specifier: ^0.31.4
         version: 0.31.4
@@ -117,6 +120,8 @@ importers:
       zod:
         specifier: ^3.23.8
         version: 3.25.76
+
+  packages/runner-contract: {}
 
 packages:
 

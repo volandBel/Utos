@@ -1,0 +1,54 @@
+﻿{
+    "jobId":  "cc9d92c5-4133-42e0-a1b8-997e45ec579f",
+    "testId":  "d82d5945-f997-4624-acc3-c26fb861268f",
+    "startedAt":  "2025-09-14T12:00:00Z",
+    "endedAt":  "2025-09-14T12:00:10Z",
+    "status":  "passed",
+    "steps":  [
+                  {
+                      "index":  0,
+                      "action":  "open",
+                      "startedAt":  "2025-09-14T12:00:00Z",
+                      "endedAt":  "2025-09-14T12:00:02Z",
+                      "status":  "passed",
+                      "attachments":  [
+                                          {
+                                              "id":  "a1",
+                                              "type":  "screenshot",
+                                              "name":  "home",
+                                              "path":  "screens/home.png",
+                                              "bytes":  123456
+                                          }
+                                      ]
+                  },
+                  {
+                      "index":  1,
+                      "action":  "click",
+                      "startedAt":  "2025-09-14T12:00:03Z",
+                      "endedAt":  "2025-09-14T12:00:04Z",
+                      "status":  "passed"
+                  }
+              ],
+    "artifacts":  [
+                      {
+                          "id":  "trace1",
+                          "type":  "trace",
+                          "path":  "traces/run1.zip",
+                          "bytes":  456789
+                      }
+                  ],
+    "env":  {
+                "os":  "Windows 11",
+                "node":  "22.19.0",
+                "runner":  "ui-playwright",
+                "runnerVersion":  "0.1.0",
+                "browser":  "chromium",
+                "browserVersion":  "130.0.0.0"
+            },
+    "stats":  {
+                  "stepsPassed":  2,
+                  "stepsFailed":  0,
+                  "screenshots":  1,
+                  "diffs":  0
+              }
+}

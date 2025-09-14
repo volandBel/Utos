@@ -6,7 +6,7 @@ import { ProjectsModule } from './projects/projects.module';
 import { TestsModule } from './tests/tests.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
-
+import { RunsModule } from './runs/runs.module';
 @Module({
   imports: [
     LoggerModule.forRoot({
@@ -26,7 +26,8 @@ import { AuthModule } from './auth/auth.module';
     ProjectsModule,
     TestsModule,
     UsersModule,
-    AuthModule
+    AuthModule,
+    RunsModule
   ],
 })
 export class AppModule {}
