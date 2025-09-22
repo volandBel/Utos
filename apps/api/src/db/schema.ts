@@ -43,9 +43,23 @@ export const runs = pgTable('runs', {
   resultJson: jsonb('result_json').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });
+// --- artifacts ---
+export const artifacts = pgTable('artifacts', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  runId: uuid('run_id')
+    .notNull()
+    .references(() => runs.id), // связь с run
+  type: text('type').notNull(), // screenshot, trace, video
+  path: text('path').notNull(), // относительный путь или URL
+  bytes: text('bytes').notNull(), // размер файла (в будущем bigint, пока text)
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
 
 // Типы (удобно для сервисов)
 export type User = typeof users.$inferSelect;
 export type Project = typeof projects.$inferSelect;
 export type Test = typeof tests.$inferSelect;
 export type Run = typeof runs.$inferSelect;
+export type Artifact = typeof artifacts.$inferSelect;

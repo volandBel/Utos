@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, UseGuards, Param } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { RunsService } from './runs.service';
 import { IsUUID } from 'class-validator';
@@ -6,6 +6,11 @@ import { IsUUID } from 'class-validator';
 class ListRunsQueryDto {
   @IsUUID()
   testId!: string;
+}
+
+class RunIdParamDto {
+  @IsUUID()
+  id!: string;
 }
 
 @UseGuards(AuthGuard('jwt'))
@@ -16,6 +21,11 @@ export class RunsController {
   @Post('result')
   result(@Body() body: unknown) {
     return this.runs.acceptResult(body);
+  }
+
+  @Get(':id/raw')
+  async raw(@Req() req: any, @Param() p: RunIdParamDto) {
+    return this.runs.getRaw(req.user.sub, p.id);
   }
 
   @Get()

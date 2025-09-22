@@ -6,6 +6,7 @@ import { runs, tests } from '../db/schema';
 import { RunnerResultSchema } from './runner-result.schema';
 import { ProjectsService } from '../projects/projects.service';
 
+
 @Injectable()
 export class RunsService {
   private readonly logger = new Logger(RunsService.name);
@@ -58,7 +59,25 @@ export class RunsService {
       ended_at: res.endedAt,
     };
   }
-
+  async getRaw(ownerId: string, runId: string) {
+    // 1) найти run
+    const r = await this.db.select().from(runs).where(eq(runs.id, runId)).limit(1);
+    const row = r[0];
+    if (!row) throw new NotFoundException({ error: 'RUN_NOT_FOUND' });
+  
+    // 2) найти связанный тест
+    const t = await this.db.select().from(tests).where(eq(tests.id, row.testId)).limit(1);
+    const test = t[0];
+    if (!test) throw new NotFoundException({ error: 'TEST_NOT_FOUND' });
+  
+    // 3) проверить владение проектом
+    const owned = await this.projects.getOwnedById(test.projectId, ownerId);
+    if (!owned) throw new NotFoundException({ error: 'PROJECT_NOT_FOUND' });
+  
+    // 4) выдать сохранённый RunnerResult как есть
+    return row.resultJson;
+  }
+  
   // список прогонов по тесту (owner-check с помощью ProjectsService)
   async listByTest(ownerId: string, testId: string) {
     const t = await this.db.select().from(tests).where(eq(tests.id, testId)).limit(1);
