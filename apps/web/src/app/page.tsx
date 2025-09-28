@@ -1,73 +1,108 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export default function LoginPage() {
-  const [email, setEmail] = useState("qa@example.com");
-  const [password, setPassword] = useState("StrongPass123");
-  const [loading, setLoading] = useState(false);
+interface Project {
+  id: string;
+  name: string;
+  created_at: string;
+}
+
+export default function ProjectsPage() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  async function handleLogin(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+  useEffect(() => {
+    if (!token) {
+      window.location.href = "/login";
+      return;
+    }
+
+    const fetchProjects = async () => {
+      const resp = await fetch("http://localhost:3000/api/v1/projects", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        setProjects(data.data || []);
+      }
+    };
+
+    fetchProjects();
+  }, [token]);
+
+  const handleCreate = async () => {
     setError(null);
+    if (!name.trim()) return;
 
     try {
-      const res = await fetch("http://localhost:3000/api/v1/auth/login", {
+      const resp = await fetch("http://localhost:3000/api/v1/projects", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ name }),
       });
 
-      if (!res.ok) {
-        throw new Error(`Ошибка: ${res.status}`);
+      if (!resp.ok) {
+        setError("Ошибка при создании проекта");
+        return;
       }
 
-      const data = await res.json();
-      localStorage.setItem("access_token", data.access_token);
-      alert("Успешный логин! Токен сохранён в localStorage.");
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+      const data = await resp.json();
+      setProjects([...projects, data]);
+      setName("");
+    } catch {
+      setError("Ошибка сети");
     }
-  }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.href = "/login";
+  };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <form
-        onSubmit={handleLogin}
-        className="bg-white p-6 rounded-xl shadow-md w-96"
-      >
-        <h1 className="text-xl font-bold mb-4">Вход</h1>
-
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-          className="w-full mb-3 p-2 border rounded"
-        />
-
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Пароль"
-          className="w-full mb-3 p-2 border rounded"
-        />
-
+    <div className="p-6 bg-gray-100 min-h-screen text-black">
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">Мои проекты</h1>
         <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          onClick={handleLogout}
+          className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
         >
-          {loading ? "Входим..." : "Войти"}
+          Выйти
         </button>
+      </div>
 
-        {error && <p className="text-red-600 mt-2">{error}</p>}
-      </form>
+      {error && <div className="text-red-500 mb-2">{error}</div>}
+
+      <div className="flex gap-2 mb-4">
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Название проекта"
+          className="flex-1 p-2 rounded border"
+        />
+        <button
+          onClick={handleCreate}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Создать
+        </button>
+      </div>
+
+      <ul>
+        {projects.map((p) => (
+          <li key={p.id} className="border-b border-gray-300 py-2">
+            {p.name}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
