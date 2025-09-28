@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post, Query, Req, UseGuards, Param } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+  Param,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { RunsService } from './runs.service';
 import { IsUUID } from 'class-validator';
@@ -26,6 +35,11 @@ export class RunsController {
   @Get(':id/raw')
   async raw(@Req() req: any, @Param() p: RunIdParamDto) {
     return this.runs.getRaw(req.user.sub, p.id);
+  }
+
+  @Get(':id/artifacts')
+  async artifacts(@Req() req: any, @Param() p: RunIdParamDto) {
+    return this.runs.listArtifacts(req.user.sub, p.id);
   }
 
   @Get()
